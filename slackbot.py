@@ -2,7 +2,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 from slack_bolt import App
-from helpers.emoji import emoji_name_to_unicode
 from helpers.numbering_tools import get_numbering
 from discordbot import send_notification
 
@@ -39,11 +38,11 @@ def format_rich_text(rich_text_section):
             elif broadcast_range == "here":
                 elem_text = "@here"
         elif elem_type == "emoji":
-            emoji_string = emoji_name_to_unicode(elem.get("name", ""))
-            if emoji_string:
-                elem_text = emoji_string
+            emoji_list = app.client.emoji_list().get("emoji", {})
+            if emoji_list.get(elem.get("name")):
+                elem_text = f":{elem.get('name')}:"
             else:
-                print(f"Skipping over emoji with no unicode string {elem.get('name', 'NO NAME')}")
+                print(f"Skipping over nonstandard emoji {elem.get('name', 'NO NAME')}")
                 continue
         elif elem_type == "user":
             # Convert @{user ID} to @{user name}:
